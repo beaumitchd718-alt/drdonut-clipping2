@@ -1,0 +1,14 @@
+{
+  "name": "drdonut-clipper",
+  "version": "1.0.0",
+  "description": "DrDonut AI Clip Finder",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@anthropic-ai/sdk": "^0.20.0",
+    "youtube-transcript": "^1.2.1"
+  }
+}

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DrDonut Clip Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080c14;
+      --surface: #0e1520;
+      --surface2: #131d2e;
+      --border: #1e2d44;
+      --blue: #2563eb;
+      --blue-light: #3b82f6;
+      --blue-glow: #1d4ed8;
+      --cyan: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --accent: #38bdf8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse at 20% 0%, #1e3a5f22 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 100%, #0e2a4422 0%, transparent 60%);
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 0 20px #2563eb44;
+    }
+
+    .logo-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--blue-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge {
+      background: #0f2040;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      letter-spacing: 3px;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--blue);
+      border-radius: 2px;
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    input[type="text"], input[type="url"], textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #2563eb22;
+    }
+
+    textarea {
+      height: 160px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .url-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .url-row input { flex: 1; }
+
+    .btn {
+      background: linear-gradient(135deg, var(--blue), var(--blue-glow));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px #2563eb33;
+    }
+
+    .btn:hover { opacity: 0.9; box-shadow: 0 4px 28px #2563eb55; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-full {
+      width: 100%;
+      padding: 14px;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .status-bar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.83rem;
+      color: var(--accent);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .status-bar.show { display: flex; }
+
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--blue-light);
+      border-radius: 50%;
+      animation: pulse 1.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .error-bar {
+      background: #1a0a0a;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.83rem;
+      color: #fca5a5;
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .error-bar.show { display: block; }
+
+    .results-section { display: none; }
+    .results-section.show { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .results-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      color: var(--text);
+    }
+
+    .results-count {
+      background: #0f2040;
+      border: 1px solid var(--blue);
+      color: var(--accent);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      letter-spacing: 1px;
+    }
+
+    .clips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .clip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .clip-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--blue), var(--cyan));
+      border-radius: 3px 0 0 3px;
+    }
+
+    .clip-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 0 24px #2563eb18;
+    }
+
+    .clip-num {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px #2563eb44;
+    }
+
+    .clip-body {}
+
+    .clip-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .clip-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .timestamp {
+      background: var(--blue);
+      color: white;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      font-family: monospace;
+      flex-shrink: 0;
+    }
+
+    .type-badge {
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      flex-shrink: 0;
+    }
+
+    .type-hype        { background: #1c1400; color: #fbbf24; border: 1px solid #fbbf2440; }
+    .type-funny       { background: #001a0f; color: #34d399; border: 1px solid #34d39940; }
+    .type-reaction    { background: #100020; color: #c084fc; border: 1px solid #c084fc40; }
+    .type-clutch      { background: #1a0000; color: #f87171; border: 1px solid #f8717140; }
+    .type-highlight   { background: #001828; color: #38bdf8; border: 1px solid #38bdf840; }
+    .type-informative { background: #001020; color: #818cf8; border: 1px solid #818cf840; }
+    .type-drama       { background: #1a000d; color: #fb7185; border: 1px solid #fb718540; }
+
+    .caption-preview {
+      background: #000;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: white;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+      border: 1px solid #1e2d44;
+      position: relative;
+    }
+
+    .caption-label {
+      position: absolute;
+      top: -9px;
+      left: 12px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--surface);
+      padding: 0 6px;
+    }
+
+    .clip-hook {
+      font-size: 0.84rem;
+      color: var(--accent);
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+
+    .clip-reason {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .copy-btn:hover { border-color: var(--blue); color: var(--accent); }
+
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 14px;
+      opacity: 0.4;
+    }
+
+    .empty p { font-size: 0.88rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">D</div>
+    <span class="logo-text">DrDonut Clips</span>
+  </div>
+  <span class="badge">AI Powered</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Find Your Best Clips</h1>
+    <p>Drop a YouTube link or paste a transcript — AI finds the moments worth clipping.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">YouTube Link</div>
+    <div class="input-group">
+      <div class="url-row">
+        <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." />
+        <button class="btn" id="fetchBtn" onclick="fetchTranscript()">Get Transcript</button>
+      </div>
+      <p class="hint">Paste any DrDonut YouTube or live stream URL and we'll pull the transcript automatically.</p>
+    </div>
+
+    <div class="divider">or paste manually</div>
+
+    <div class="input-group">
+      <label>Stream Title (optional)</label>
+      <input type="text" id="videoTitle" placeholder="e.g. DrDonut Donut SMP stream"/>
+    </div>
+
+    <div class="input-group">
+      <label>Transcript</label>
+      <textarea id="transcript" placeholder="Transcript will appear here after fetching, or paste it manually..."></textarea>
+    </div>
+
+    <div id="statusBar" class="status-bar">
+      <div class="dot-pulse"></div>
+      <span id="statusText">Fetching transcript...</span>
+    </div>
+
+    <div id="errorBar" class="error-bar"></div>
+
+    <button class="btn btn-full" id="analyzeBtn" onclick="analyze()">Find Best Clips</button>
+  </div>
+
+  <div id="resultsSection" class="results-section">
+    <div class="results-header">
+      <span class="results-title">Top Clip Moments</span>
+      <span class="results-count" id="clipCount"></span>
+    </div>
+    <div class="clips-list" id="clipsList">
+      <div class="empty">
+        <div class="empty-icon">🎬</div>
+        <p>Your clips will appear here.<br/>Paste a transcript and hit Find Best Clips.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const TYPE_LABELS = {
+  hype: 'Hype', funny: 'Funny', reaction: 'Reaction',
+  clutch: 'Clutch', highlight: 'Highlight', informative: 'Info', drama: 'Drama'
+};
+
+function showStatus(msg) {
+  document.getElementById('statusBar').classList.add('show');
+  document.getElementById('statusText').textContent = msg;
+  document.getElementById('errorBar').classList.remove('show');
+}
+
+function hideStatus() {
+  document.getElementById('statusBar').classList.remove('show');
+}
+
+function showError(msg) {
+  hideStatus();
+  const el = document.getElementById('errorBar');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+}
+
+async function fetchTranscript() {
+  const url = document.getElementById('youtubeUrl').value.trim();
+  if (!url) { showError('Please paste a YouTube URL first.'); return; }
+
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Fetching...';
+  showStatus('Fetching transcript from YouTube...');
+
+  try {
+    const res = await fetch('/transcript', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch transcript');
+
+    document.getElementById('transcript').value = data.transcript;
+    hideStatus();
+    showStatus('✓ Transcript loaded! Hit Find Best Clips to analyze.');
+    setTimeout(hideStatus, 3000);
+  } catch (err) {
+    showError(err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Get Transcript';
+}
+
+async function analyze() {
+  const transcript = document.getElementById('transcript').value.trim();
+  const videoTitle = document.getElementById('videoTitle').value.trim();
+
+  if (!transcript) { showError('Please add a transcript first.'); return; }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  showStatus('AI is reading the transcript and finding the best moments...');
+
+  try {
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript, videoTitle })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Something went wrong');
+    if (!data.clips || !data.clips.length) throw new Error('No clips found. Try a longer transcript.');
+
+    renderClips(data.clips);
+    hideStatus();
+  } catch (err) {
+    showError(err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Find Best Clips';
+}
+
+function renderClips(clips) {
+  const list = document.getElementById('clipsList');
+  const section = document.getElementById('resultsSection');
+  const count = document.getElementById('clipCount');
+
+  section.classList.add('show');
+  count.textContent = clips.length + ' clips';
+
+  list.innerHTML = clips.map((c, i) => {
+    const type = (c.type || 'highlight').toLowerCase();
+    const typeLabel = TYPE_LABELS[type] || c.type;
+    return `
+      <div class="clip-card">
+        <div class="clip-num">${i + 1}</div>
+        <div class="clip-body">
+          <div class="clip-top">
+            <span class="clip-title">${esc(c.title)}</span>
+            <span class="timestamp">${esc(c.timestamp)}</span>
+            <span class="type-badge type-${type}">${esc(typeLabel)}</span>
+          </div>
+          <div class="caption-preview">
+            <span class="caption-label">Caption</span>
+            ${esc(c.caption || c.title.toUpperCase())}
+          </div>
+          <div class="clip-hook">"${esc(c.hook)}"</div>
+          <div class="clip-reason">${esc(c.reason)}</div>
+          <button class="copy-btn" onclick="copyClip(${i})">Copy clip info</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  window._clips = clips;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyClip(i) {
+  const c = window._clips[i];
+  const text = `Timestamp: ${c.timestamp}\nTitle: ${c.title}\nCaption: ${c.caption}\nHook: ${c.hook}\nReason: ${c.reason}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns[i].textContent = 'Copied!';
+    setTimeout(() => btns[i].textContent = 'Copy clip info', 2000);
+  });
+}
+
+function esc(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
