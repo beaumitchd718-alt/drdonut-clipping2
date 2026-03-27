@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DrDonut Clip Finder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f0f;
+      color: #e5e5e5;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a1a;
+      border-bottom: 2px solid #ff6a00;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6a00, #ff9a3c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f0f0f;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ff6a00;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      font-size: 0.78rem;
+      color: #888;
+      margin-top: 1px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 36px 20px;
+    }
+
+    .form-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 32px;
+    }
+
+    .form-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ff6a00;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #aaa;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #e5e5e5;
+      font-family: inherit;
+      font-size: 0.92rem;
+      padding: 11px 14px;
+      transition: border-color 0.2s;
+      outline: none;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: #ff6a00;
+    }
+
+    textarea {
+      height: 180px;
+      line-height: 1.5;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff6a00, #ff9a3c);
+      color: #0f0f0f;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 13px 28px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #0f0f0f40;
+      border-top-color: #0f0f0f;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading .spinner { display: block; }
+    .loading .btn-text::after { content: "Analyzing..."; }
+    .btn-text::after { content: "Find Clips"; }
+
+    #error {
+      background: #2a1010;
+      border: 1px solid #8b1a1a;
+      border-radius: 8px;
+      color: #ff6b6b;
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    #results-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    #results-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ff6a00;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .clip-count {
+      background: #2a1800;
+      border: 1px solid #ff6a00;
+      color: #ff6a00;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 12px;
+    }
+
+    .clips-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .clip-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-left: 3px solid #ff6a00;
+      border-radius: 10px;
+      padding: 20px 22px;
+      transition: border-color 0.2s;
+    }
+
+    .clip-card:hover { border-color: #ff9a3c; border-left-color: #ff9a3c; }
+
+    .clip-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .clip-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .clip-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .timestamp {
+      background: #ff6a00;
+      color: #0f0f0f;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      font-family: monospace;
+    }
+
+    .type-badge {
+      border-radius: 5px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .type-hype      { background: #1a1200; color: #ffd000; border: 1px solid #ffd00060; }
+    .type-funny     { background: #001a0f; color: #00e676; border: 1px solid #00e67660; }
+    .type-reaction  { background: #0d0020; color: #d580ff; border: 1px solid #d580ff60; }
+    .type-clutch    { background: #1a0000; color: #ff5252; border: 1px solid #ff525260; }
+    .type-highlight { background: #001a1a; color: #00cfff; border: 1px solid #00cfff60; }
+    .type-informative { background: #001020; color: #82b1ff; border: 1px solid #82b1ff60; }
+    .type-drama     { background: #1a000d; color: #ff80ab; border: 1px solid #ff80ab60; }
+
+    .clip-hook {
+      font-size: 0.88rem;
+      color: #ff9a3c;
+      font-style: italic;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #1f1200;
+      border-radius: 6px;
+      border-left: 2px solid #ff6a00;
+    }
+
+    .clip-hook::before { content: '"'; }
+    .clip-hook::after  { content: '"'; }
+
+    .clip-reason {
+      font-size: 0.85rem;
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #555;
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-circle">D</div>
+  <div>
+    <h1>DrDonut Clip Finder</h1>
+    <p>AI-powered clip moments from stream transcripts</p>
+  </div>
+</header>
+
+<main>
+  <div class="form-card">
+    <h2>Analyze Transcript</h2>
+
+    <div class="field">
+      <label for="videoTitle">Stream / Video Title</label>
+      <input type="text" id="videoTitle" placeholder="e.g. Hardcore Minecraft Day 47 - Almost Died..." />
+    </div>
+
+    <div class="field">
+      <label for="transcript">Transcript</label>
+      <textarea id="transcript" placeholder="Paste your stream transcript here..."></textarea>
+    </div>
+
+    <button id="analyzeBtn" onclick="analyze()">
+      <div class="spinner"></div>
+      <span class="btn-text"></span>
+    </button>
+  </div>
+
+  <div id="error"></div>
+
+  <div id="results-header">
+    <h2>Top Clip Moments</h2>
+    <span class="clip-count" id="clipCount"></span>
+  </div>
+
+  <div class="clips-grid" id="clipsGrid">
+    <div class="empty-state">
+      <div class="icon">🎬</div>
+      <p>Paste a transcript above and hit <strong>Find Clips</strong> to discover the best moments.</p>
+    </div>
+  </div>
+</main>
+
+<script>
+  const TYPE_LABELS = {
+    hype: 'Hype', funny: 'Funny', reaction: 'Reaction',
+    clutch: 'Clutch', highlight: 'Highlight', informative: 'Info', drama: 'Drama'
+  };
+
+  async function analyze() {
+    const btn = document.getElementById('analyzeBtn');
+    const errorEl = document.getElementById('error');
+    const transcript = document.getElementById('transcript').value.trim();
+    const videoTitle = document.getElementById('videoTitle').value.trim();
+
+    errorEl.style.display = 'none';
+
+    if (!transcript) {
+      showError('Please paste a transcript before analyzing.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('loading');
+
+    try {
+      const res = await fetch('/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript, videoTitle })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      if (!data.clips || !data.clips.length) throw new Error('No clips returned. Try a longer transcript.');
+
+      renderClips(data.clips);
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+
+  function renderClips(clips) {
+    const grid = document.getElementById('clipsGrid');
+    const header = document.getElementById('results-header');
+    const count = document.getElementById('clipCount');
+
+    header.style.display = 'flex';
+    count.textContent = `${clips.length} clips`;
+
+    grid.innerHTML = clips.map((clip, i) => {
+      const typeClass = 'type-' + (clip.type || 'highlight').toLowerCase();
+      const typeLabel = TYPE_LABELS[clip.type] || clip.type;
+      return `
+        <div class="clip-card">
+          <div class="clip-top">
+            <div class="clip-title">${escHtml(clip.title)}</div>
+            <div class="clip-meta">
+              <span class="timestamp">${escHtml(clip.timestamp)}</span>
+              <span class="type-badge ${typeClass}">${escHtml(typeLabel)}</span>
+            </div>
+          </div>
+          <div class="clip-hook">${escHtml(clip.hook)}</div>
+          <div class="clip-reason">${escHtml(clip.reason)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
+
+  function escHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
